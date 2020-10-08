@@ -1,0 +1,102 @@
+public class plinko {
+
+	public static int r;
+	public static int c;
+	public static char[][] board;
+
+	public static void main(String[] args) {
+
+		Scanner stdin = new Scanner(System.in);
+		int numCases = stdin.nextInt();
+
+		// Process each case.
+		for (int loop=1; loop<=numCases; loop++) {
+
+			// Read in the input.
+			c = stdin.nextInt();
+			r = stdin.nextInt();
+			board = new char[r][];
+			for (int i=0; i<r; i++)
+				board[i] = stdin.next().toCharArray();
+
+			int res = 0, colDrop = -1;
+
+			// Try each column - update only when we get a better result.
+			for (int i=1; i<c-1; i++) {
+				int cur = simulate(i);
+				if (cur > res) {
+					res = cur;
+					colDrop = i;
+				}
+			}
+
+			// Output appropriately based on whether a solution exists or not.
+			if (res > 0)
+				System.out.println("Board #"+loop+": Drop at column "+colDrop+" for a score of "+res+" points.");
+			else
+				System.out.println("Board #"+loop+": Don't even bother dropping a coin. You can't win!");
+
+			// After each case.
+			System.out.println();
+		}
+	}
+
+	public static int simulate(int col) {
+
+		// Need to keep track of this.
+		int dy = 0;
+		int row = 0;
+		int dx = 1;
+
+		// We'll break out later.
+		while (true) {
+
+			// Calculate where to go next.
+			int nextcol = col + dy;
+			int nextrow = row + dx;
+
+			// We made it to the bottom, get out!
+			if (nextrow == r-1) return nextcol > 0 && nextcol < c ? board[nextrow][nextcol] - '0' : 0;
+
+			// Going straight down...
+			if (dy == 0) {
+
+				// These stop us.
+				if (board[nextrow][nextcol] == '_' || board[nextrow][nextcol] == '|') return 0;
+
+				// Start moving right.
+				if (board[nextrow][nextcol] == '\\') {
+					dy = 1;
+					dx = 0;
+				}
+
+				// Start moving left.
+				if (board[nextrow][nextcol] == '/') {
+					dy = -1;
+					dx = 0;
+				}
+			}
+
+			// Moving right or left.
+			else {
+
+				// These stop us.
+				if (board[nextrow][nextcol] == '\\' || board[nextrow][nextcol] == '|' || board[nextrow][nextcol] == '/') return 0;
+
+				// Now, we fall.
+				if (board[nextrow][nextcol] == '.') {
+					dy = 0;
+					dx = 1;
+				}
+
+				if (board[nextrow][nextcol] == '_') {
+					dx = 0;
+				}
+			}
+
+			// Update our position.
+			col = nextcol;
+			row = nextrow;
+		}
+ 	}
+}
